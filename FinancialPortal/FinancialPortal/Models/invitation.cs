@@ -10,5 +10,8 @@ namespace FinancialPortal.Models
         public int Id { get; set; }
         public int FromUserId { get; set; }
         public string ToEmail { get; set; }
+        public int HouseholdId { get; set; }
+
+        public virtual Household Houshold { get; set; }
     }
 }

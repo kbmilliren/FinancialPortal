@@ -10,11 +10,16 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using FinancialPortal.Models;
 
+
 namespace FinancialPortal.Controllers
 {
+   
+
     [Authorize]
     public class AccountController : Controller
     {
+         private ApplicationDbContext db = new ApplicationDbContext();
+    
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
@@ -152,6 +157,10 @@ namespace FinancialPortal.Controllers
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var house = new Household();
+                db.Households.Add(house);
+                db.SaveChanges();
+                user.HouseholdId = house.Id;
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -165,6 +174,8 @@ namespace FinancialPortal.Controllers
 
                     return RedirectToAction("Index", "Home");
                 }
+                db.Households.Remove(house);
+                db.SaveChanges();
                 AddErrors(result);
             }
 

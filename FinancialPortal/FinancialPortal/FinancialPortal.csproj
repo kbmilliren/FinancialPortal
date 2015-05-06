@@ -170,12 +170,15 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\HouseholdAccountsController.cs" />
+    <Compile Include="Controllers\HouseholdsController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\TransactionsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\HouseholdAccount.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Budgetitem.cs" />
     <Compile Include="Models\Category.cs" />
@@ -243,6 +246,21 @@
     <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
+    <Content Include="Views\HouseholdAccounts\Create.cshtml" />
+    <Content Include="Views\HouseholdAccounts\Delete.cshtml" />
+    <Content Include="Views\HouseholdAccounts\Details.cshtml" />
+    <Content Include="Views\HouseholdAccounts\Edit.cshtml" />
+    <Content Include="Views\HouseholdAccounts\Index.cshtml" />
+    <Content Include="Views\Households\Create.cshtml" />
+    <Content Include="Views\Households\Delete.cshtml" />
+    <Content Include="Views\Households\Details.cshtml" />
+    <Content Include="Views\Households\Edit.cshtml" />
+    <Content Include="Views\Households\Index.cshtml" />
+    <Content Include="Views\Transactions\Create.cshtml" />
+    <Content Include="Views\Transactions\Delete.cshtml" />
+    <Content Include="Views\Transactions\Details.cshtml" />
+    <Content Include="Views\Transactions\Edit.cshtml" />
+    <Content Include="Views\Transactions\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

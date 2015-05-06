@@ -11,7 +11,8 @@ namespace FinancialPortal.Models
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string DisplayName { get; set; }
+        public int HouseholdId { get; set; }
+        public string Invitations { get; set; }
 
 
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
@@ -21,6 +22,8 @@ namespace FinancialPortal.Models
             // Add custom user claims here
             return userIdentity;
         }
+
+        public virtual Household Household { get; set; }
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
@@ -35,8 +38,8 @@ namespace FinancialPortal.Models
             return new ApplicationDbContext();
         }
 
-        public DbSet<Account> Accounts { get; set; }
-        public DbSet<Budgetitem> BudgetItems { get; set; }
+        public DbSet<HouseholdAccount> HouseholdAccounts { get; set; }
+        public DbSet<BudgetItem> BudgetItems { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Household> Households { get; set; }
         public DbSet<Invitation> Invitations { get; set; }

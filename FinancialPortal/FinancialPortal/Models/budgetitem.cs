@@ -5,11 +5,16 @@ using System.Web;
 
 namespace FinancialPortal.Models
 {
-    public class Budgetitem
+    public class BudgetItem
     {
         public int Id { get; set; }
-        public string Household { get; set; }
-        public int CategoryId { get; set; }
-        public int Amount { get; set; }
+        public int HouseholdId { get; set; }
+        public int? CategoryId { get; set; }
+        public decimal Amount { get; set; }
+
+        public virtual Category Category { get; set; }
+        public virtual Household Household { get; set; }
     }
+
+
 }

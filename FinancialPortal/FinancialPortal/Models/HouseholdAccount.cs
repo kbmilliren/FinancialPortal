@@ -5,20 +5,23 @@ using System.Web;
 
 namespace FinancialPortal.Models
 {
-    public class Category
+    public class HouseholdAccount
     {
         public int Id { get; set; }
         public int HouseholdId { get; set; }
         public string Name { get; set; }
+        public decimal Balance { get; set; }
+        public decimal ReconciledBalance { get; set; }
 
+        public virtual ICollection<Transaction> Transactions { get; set; }
         public virtual Household Household { get; set; }
-        public ICollection<Transaction> Transaction { get; set; }
-        public ICollection<BudgetItem> BudgetItem { get; set; }
 
-        public Category()
+        public HouseholdAccount()
         {
-            Transaction = new HashSet<Transaction>();
-            BudgetItem = new HashSet<BudgetItem>();
+            Transactions = new HashSet<Transaction>();
         }
+
     }
+
+
 }
