@@ -11,6 +11,10 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using FinancialPortal.Models;
+using SendGrid;
+using System.Configuration;
+using System.Net;
+using System.Net.Mail;
 
 namespace FinancialPortal
 {
@@ -19,8 +23,23 @@ namespace FinancialPortal
         public Task SendAsync(IdentityMessage message)
         {
             // Plug in your email service here to send an email.
+            var MyAddresss = ConfigurationManager.AppSettings["ContactEmail"];
+            var MyUsername = ConfigurationManager.AppSettings["Username"];
+            var MyPassword = ConfigurationManager.AppSettings["Password"];
+
+
+            SendGridMessage mail = new SendGridMessage();
+            mail.From = new MailAddress("kbmilliren@northstate.net");
+            mail.AddTo(message.Destination);
+            mail.Subject = message.Subject;
+            mail.Text = message.Body;
+
+            var credentials = new NetworkCredential(MyUsername, MyPassword);
+            var transportWeb = new Web(credentials);
+            transportWeb.DeliverAsync(mail);
             return Task.FromResult(0);
         }
+        
     }
 
     public class SmsService : IIdentityMessageService

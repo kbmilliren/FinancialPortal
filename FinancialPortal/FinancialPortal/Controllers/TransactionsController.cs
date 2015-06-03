@@ -10,18 +10,30 @@ using FinancialPortal.Models;
 
 namespace FinancialPortal.Controllers
 {
+    [RequireHousehold]
     public class TransactionsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Transactions
-        public ActionResult Index()
+        [Route("~/Accounts/{accountId}/Transactions")]
+        public ActionResult Index(string query, int accountId)
         {
-            var transactions = db.Transactions.Include(t => t.Category);
+            var db = new ApplicationDbContext();
+            var transactions = db.HouseholdAccounts.Find(accountId).Transactions.AsQueryable();
+            ViewBag.AccountId = accountId;
+            
+            if (!String.IsNullOrWhiteSpace(query))
+            {
+                transactions = transactions.Where(p => p.Description.Contains(query) || p.Amount.Equals(query) || p.Category.Equals(query));
+                ViewBag.Query = query;
+            }
+            
             return View(transactions.ToList());
         }
 
         // GET: Transactions/Details/5
+        [Route("~/Accounts/{accountId}/Transactions/{transactionId}")]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -37,8 +49,14 @@ namespace FinancialPortal.Controllers
         }
 
         // GET: Transactions/Create
-        public ActionResult Create()
+        [Route("~/Accounts/{accountId}/Transactions/Create")]
+        public ActionResult Create(int accountId)
         {
+            var account = db.Households.Find(Int32.Parse(User.Identity.GetHouseholdId())).Accounts.FirstOrDefault(a => a.Id == accountId);
+
+            if (account == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
             ViewBag.CategoryId = new SelectList(db.Categories, "Id", "Name");
             return View();
         }
@@ -48,11 +66,22 @@ namespace FinancialPortal.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,AccountId,Amount,AbsAmount,ReconciledAmount,AbsReconciledAmount,Date,Description,Updated,UpdatedByUserId,CategoryId")] Transaction transaction)
+        [Route("~/Accounts/{accountId}/Transactions/Create")]
+        public ActionResult Create([Bind(Include = "Id,AccountId,Amount,AbsAmount,ReconciledAmount,AbsReconciledAmount,Date,Description,Updated,UpdatedByUserId,CategoryId")] Transaction transaction, int accountId)
         {
             if (ModelState.IsValid)
             {
+                var account = db.Households.Find(Int32.Parse(User.Identity.GetHouseholdId())).Accounts.FirstOrDefault(a => a.Id == accountId);
+                transaction.AccountId = accountId;
+
                 db.Transactions.Add(transaction);
+                if (account == null)
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+                account.Balance += transaction.Amount;
+                transaction.Date = DateTimeOffset.Now;
+                transaction.UpdatedByUser = db.Users.Find(User.Identity.ToString());
+               
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -62,7 +91,8 @@ namespace FinancialPortal.Controllers
         }
 
         // GET: Transactions/Edit/5
-        public ActionResult Edit(int? id)
+        [Route("~/Accounts/{accountId:int}/Transactions/{id}/Edit", Name="EditTransaction")]
+        public ActionResult Edit(int accountId, int? id)
         {
             if (id == null)
             {
@@ -82,12 +112,21 @@ namespace FinancialPortal.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,AccountId,Amount,AbsAmount,ReconciledAmount,AbsReconciledAmount,Date,Description,Updated,UpdatedByUserId,CategoryId")] Transaction transaction)
+        [Route("~/Accounts/{accountId:int}/Transactions/{id}/Edit")]
+        public ActionResult Edit([Bind(Include = "Id,AccountId,Amount,AbsAmount,ReconciledAmount,AbsReconciledAmount,Date,Description,Updated,UpdatedByUserId,CategoryId")] Transaction transaction, int accountId)
         {
             if (ModelState.IsValid)
             {
                 db.Entry(transaction).State = EntityState.Modified;
                 db.SaveChanges();
+
+                var account = db.HouseholdAccounts.Find(transaction.AccountId);
+                    account.Balance = (from t in db.Transactions
+                                       where t.AccountId == account.Id
+                                       select t.Amount).Sum();
+
+                account.Balance = db.Transactions.Where(t => t.AccountId == account.Id).Select(b => b.Amount).Sum();
+
                 return RedirectToAction("Index");
             }
             ViewBag.CategoryId = new SelectList(db.Categories, "Id", "Name", transaction.CategoryId);

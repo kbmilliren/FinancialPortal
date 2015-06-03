@@ -1,5 +1,6 @@
 namespace FinancialPortal.Migrations
 {
+    using FinancialPortal.Models;
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
@@ -26,6 +27,9 @@ namespace FinancialPortal.Migrations
             //      new Person { FullName = "Rowan Miller" }
             //    );
             //
+       
+
         }
+         
     }
 }

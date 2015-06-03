@@ -3,47 +3,59 @@
 @{
     ViewBag.Title = "Details";
 }
+<br />
+<br />
+<br />
+<h2>Account</h2>
 
-<h2>Details</h2>
 
-<div>
-    <h4>HouseholdAccount</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Household.Name)
-        </dt>
+<div class="col-md-8">
+    <div class="row">
+        <br />
+        <br />
+        <br />
+        <div class="well">
+            <h4>Household Account</h4>
+            <hr />
+            <dl class="dl-horizontal">
+                <dt>
+                    Household 
+                </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.Household.Name)
-        </dd>
+                <dd>
+                    @Html.DisplayFor(model => model.Household.Name)
+                </dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
+                <dt>
+                    Account
+                </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.Name)
-        </dd>
+                <dd>
+                    @Html.DisplayFor(model => model.Name)
+                </dd>
+            </dl>
+        </div>
+    </div>
+    </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Balance)
-        </dt>
+    
 
-        <dd>
-            @Html.DisplayFor(model => model.Balance)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.ReconciledBalance)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.ReconciledBalance)
-        </dd>
-
-    </dl>
+<div class="col-md-4">
+    <div class="header">
+        <div class="pull-right actions">
+        </div>
+        <h3>Account Balance</h3>
+    </div>
+    <div class="content">
+        <div class="well">
+            <div class="icon"><i class="fa fa-server"><strong>  Balance: @Model.Balance</strong></i></div>
+            <strong></strong>
+        </div>
+        <div class="well">
+            <div class="icon"><i class="fa fa-line-chart"><strong>  Reconciled Balance : @Model.ReconciledBalance</strong></i></div>
+    </div>
 </div>
+    </div>
 <p>
     @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
     @Html.ActionLink("Back to List", "Index")

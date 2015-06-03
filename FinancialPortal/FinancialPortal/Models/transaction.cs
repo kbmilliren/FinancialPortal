@@ -16,9 +16,10 @@ namespace FinancialPortal.Models
         public DateTimeOffset Date { get; set; }
         public string Description { get; set; }
         public Nullable <DateTimeOffset> Updated { get; set; }
-        public int UpdatedByUserId { get; set; }
+        public string UpdatedByUserId { get; set; }
         public int? CategoryId { get; set; }
 
+        public virtual HouseholdAccount Account { get; set; }
         public virtual Category Category { get; set; }
         public virtual ApplicationUser UpdatedByUser { get; set; }
 

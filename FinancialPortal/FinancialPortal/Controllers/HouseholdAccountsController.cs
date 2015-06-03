@@ -6,10 +6,12 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using Microsoft.AspNet.Identity;
 using FinancialPortal.Models;
 
 namespace FinancialPortal.Controllers
 {
+    [RequireHousehold]
     public class HouseholdAccountsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -17,7 +19,9 @@ namespace FinancialPortal.Controllers
         // GET: HouseholdAccounts
         public ActionResult Index()
         {
-            var householdAccounts = db.HouseholdAccounts.Include(h => h.Household);
+            var user = db.Users.Find(User.Identity.GetUserId());
+            var householdAccounts = db.HouseholdAccounts.Include(h => h.Household).Where(a => a.HouseholdId == user.HouseholdId) ;
+
             return View(householdAccounts.ToList());
         }
 
@@ -52,7 +56,20 @@ namespace FinancialPortal.Controllers
         {
             if (ModelState.IsValid)
             {
+                var user = db.Users.Find(User.Identity.GetUserId());
+                householdAccount.HouseholdId = user.HouseholdId.Value;
                 db.HouseholdAccounts.Add(householdAccount);
+                db.SaveChanges();
+                var transaction = new Transaction()
+                {
+                    Amount = householdAccount.Balance,
+                    AccountId = householdAccount.Id,
+                    CategoryId = db.Categories.First(c => c.Name == "Initial Deposit").Id,
+                    Date = System.DateTimeOffset.Now,
+                    Description = "",
+                    UpdatedByUserId = user.Id
+                };
+                db.Transactions.Add(transaction);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -128,5 +145,6 @@ namespace FinancialPortal.Controllers
             }
             base.Dispose(disposing);
         }
+
     }
 }
