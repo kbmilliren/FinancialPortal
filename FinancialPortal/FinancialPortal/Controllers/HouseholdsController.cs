@@ -28,8 +28,9 @@ namespace FinancialPortal.Controllers
         
         // GET: Households/Details/5
         [RequireHousehold]
-        public ActionResult Details(int? id)
+        public ActionResult Details()
         {
+            var id = Int32.Parse(User.Identity.GetHouseholdId());
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -40,7 +41,7 @@ namespace FinancialPortal.Controllers
             {
                 return HttpNotFound();
             }
-            return View(user.HouseholdId);
+            return View(household);
         }
 
         // GET: Households/Create
@@ -153,6 +154,7 @@ namespace FinancialPortal.Controllers
             return RedirectToAction("Create", "Household");
         }
 
+        [HttpPost]
         public async Task<ActionResult> SendInvitation(string ToEmail)
         {
             var user = db.Users.Find(User.Identity.GetUserId());
@@ -167,6 +169,7 @@ namespace FinancialPortal.Controllers
 
             var invite = new Invitation()
             {
+                HouseholdId = hhId,
                 ToEmail = ToEmail,
                 FromUserId = User.Identity.GetUserId(),
                 Code = code
@@ -178,14 +181,21 @@ namespace FinancialPortal.Controllers
             var mailer = new EmailService();
             mailer.Send(new IdentityMessage() { 
                 Destination = ToEmail,
-                Subject = "",
-                Body = "You have been...." + "..." + code + "..."
+                Subject = "You've been invited to join a household",
+                Body = "You have been invited to join a household." + code + "Use this code to join the household after registering."
             });
 
             return RedirectToAction("Index");
         }
 
-        public ActionResult JoinHousehold(string code)
+        [HttpGet]
+        public ActionResult Join()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Join(string code)
         {
             var user = db.Users.Find(User.Identity.GetUserId());
             var invite = db.Invitations.Where(i => i.Code == code && i.ToEmail == user.Email).FirstOrDefault();
@@ -194,9 +204,12 @@ namespace FinancialPortal.Controllers
             {
                 user.HouseholdId = invite.HouseholdId;
                 db.SaveChanges();
+                await HttpContext.RefreshAuthentication(user);
+                return RedirectToAction("Index");
             }
 
-            return RedirectToAction("Index");
+            ModelState.AddModelError("Code", "Invalid Code");
+            return View(new Invitation() {Code = code });
         }
 
     }

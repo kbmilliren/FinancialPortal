@@ -16,12 +16,16 @@
     }
 </div>
 
-<div>
-    <p>Invite others to household</p>
-    <input name="email" type="email" placeholder="user@mydomain.com" /> <input type="submit" value="Submit">
-</div>
+<form method="post" action="@Url.Action("SendInvitation", "Households")">
+    <div>
+        <p>Invite others to household</p>
+        <input name="ToEmail" type="email" placeholder="user@mydomain.com" /> <input type="submit" onclick="SendInvitation" value="SendInvitation">
+    </div>
+</form>
+
 
 <p>
     @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Join", "Join", new { id = Model.Id }) |
     @Html.ActionLink("Back to List", "Index")
 </p>
