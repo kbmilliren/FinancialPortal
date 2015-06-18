@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
@@ -17,6 +18,7 @@ namespace FinancialPortal.Models
         public string Description { get; set; }
         public Nullable <DateTimeOffset> Updated { get; set; }
         public string UpdatedByUserId { get; set; }
+
         public int? CategoryId { get; set; }
 
         public virtual HouseholdAccount Account { get; set; }

@@ -48,11 +48,11 @@
     </div>
     <div class="content">
         <div class="well">
-            <div class="icon"><i class="fa fa-server"><strong>  Balance: @Model.Balance</strong></i></div>
+            <div class="icon"><i class="fa fa-server"><strong>  Balance: $ @Model.Balance</strong></i></div>
             <strong></strong>
         </div>
         <div class="well">
-            <div class="icon"><i class="fa fa-line-chart"><strong>  Reconciled Balance : @Model.ReconciledBalance</strong></i></div>
+            <div class="icon"><i class="fa fa-line-chart"><strong>  Reconciled Balance : $ @Model.ReconciledBalance</strong></i></div>
     </div>
 </div>
     </div>
@@ -60,3 +60,134 @@
     @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
     @Html.ActionLink("Back to List", "Index")
 </p>
+
+<h2>Transactions</h2>
+
+
+
+<table id="thistable" class="table">
+    <thead>
+        <tr>
+            <th>
+                Description
+            </th>
+            <th>
+                Category
+            </th>
+            <th>
+                Account
+            </th>
+            <th>
+                Ammount
+            </th>
+            <th>
+                Reconciled Ammount
+            </th>
+            <th>
+                Date
+            </th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Transactions)
+        {
+            <tr>
+                <td>
+                    @Html.ActionLink(item.Description, "Edit", "Transactions", new { accountId = item.AccountId, id = item.Id }, null)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Category.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AccountId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Amount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReconciledAmount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Date)
+                </td>
+            </tr>
+
+        }
+    </tbody>
+
+
+</table>
+
+<p>
+    <a href="@Url.RouteUrl("TransactionCreate", new { accountId = Model.Id })">Create New</a>
+</p>
+
+
+<canvas id="myChart" width="800" height="400"></canvas>
+
+
+@section scripts
+{
+    <script>
+
+        $('#thistable').dataTable();
+
+    </script>
+
+    
+  
+
+    <script>
+
+
+
+        $.post("@Url.Action("GetChartData", "HouseholdAccounts")").then(function (response)
+        {
+            var ctx = $("#myChart").get(0).getContext("2d");
+
+
+            var data = {
+                labels: [],
+                datasets: [
+                    {
+                        label: "BudgetAmount",
+                        fillColor: "rgba(220,220,220,0.5)",
+                        strokeColor: "rgba(220,220,220,0.8)",
+                        highlightFill: "rgba(220,220,220,0.75)",
+                        highlightStroke: "rgba(220,220,220,1)",
+                        data: []
+                    },
+                    {
+                        label: "ActualAmount",
+                        fillColor: "rgba(151,187,205,0.5)",
+                        strokeColor: "rgba(151,187,205,0.8)",
+                        highlightFill: "rgba(151,187,205,0.75)",
+                        highlightStroke: "rgba(151,187,205,1)",
+                        data: []
+                    }
+                ]
+
+            };
+
+            for (i = 0; i < response.length; i++) 
+            {
+                data.labels.push( response[i].Name );
+                data.datasets[0].data.push(response[i].BudgetAmount);
+                data.datasets[1].data.push(response[i].ActualAmount);
+            }
+
+            console.log(data)
+
+            Chart.defaults.global.scaleFontColor="black";           
+            var myBarChart = new Chart(ctx).Bar(data, responsive = true);
+            myBarChart.update();
+
+        })
+      
+
+
+       
+    </script>
+
+}

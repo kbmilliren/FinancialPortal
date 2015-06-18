@@ -12,12 +12,12 @@ namespace FinancialPortal.Models
         public string Name { get; set; }
 
         public virtual Household Household { get; set; }
-        public ICollection<Transaction> Transaction { get; set; }
-        public ICollection<BudgetItem> BudgetItem { get; set; }
+        public virtual ICollection<Transaction> Transactions { get; set; }
+        public virtual ICollection<BudgetItem> BudgetItem { get; set; }
 
         public Category()
         {
-            Transaction = new HashSet<Transaction>();
+            Transactions = new HashSet<Transaction>();
             BudgetItem = new HashSet<BudgetItem>();
         }
     }

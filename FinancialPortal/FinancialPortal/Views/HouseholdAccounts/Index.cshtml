@@ -28,7 +28,7 @@
         {
             <tr>
                 <td>
-                   @Html.ActionLink(item.Name, "Index","Transactions", new { accountId = @item.Id }, null) 
+                    @Html.ActionLink(item.Name, "Details", new { id = item.Id })
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Balance)
@@ -37,8 +37,7 @@
                     @Html.DisplayFor(modelItem => item.ReconciledBalance)
                 </td>
                 <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |                  |
                     @Html.ActionLink("Delete", "Delete", new { id = item.Id })
                 </td>
             </tr>
@@ -47,3 +46,5 @@
     </table>
 
 </div>
+
+

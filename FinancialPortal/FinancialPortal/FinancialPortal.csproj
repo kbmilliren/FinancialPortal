@@ -186,6 +186,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AuthExtensions.cs" />
+    <Compile Include="Models\DashboardViewModel.cs" />
     <Compile Include="Models\HouseholdAccount.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Budgetitem.cs" />
@@ -1163,6 +1164,8 @@
     <None Include="Properties\PublishProfiles\millirenb-financeportal - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\millirenb-financeportal - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="Scripts\Chart.js" />
+    <Content Include="Scripts\Chart.min.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />

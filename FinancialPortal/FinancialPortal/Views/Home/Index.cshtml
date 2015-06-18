@@ -1,27 +1,181 @@
-﻿@{
+﻿@model FinancialPortal.Models.DashboardViewModel
+
+
+
+@{
     ViewBag.Title = "Home Page";
 }
 
-<div class="jumbotron">
-    <h1>Money Manager</h1>
-    <p class="lead">Money manager helps you organize and simplify your budgets and money all in one place..</p>
-    
+<div class="page-header">
+    <h1>Dashboard</h1>
+</div>
+<div class="well">
+    <h3>Accounts</h3>
+    <table class="table">
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Balance
+            </th>
+            <th>
+                Reconciled Balance
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model.HouseholdAccounts)
+        {
+            <tr>
+                <td>
+                    @Html.ActionLink(item.Name, "Details", "HouseholdAccounts", new { id = item.Id }, null)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.Balance)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.ReconciledBalance)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", "HouseholdAccounts", new { id = item.Id }, null) |                  |
+                    @Html.ActionLink("Delete", "Delete", "HouseholdAccounts", new { id = item.Id }, null)
+                </td>
+            </tr>
+        }
+
+    </table>
+
 </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>What is Money Manager</h2>
-        <p>
-            Money monager is a tool for helping households managed budgedts and checking accounts.
-        </p>
-        </div>
-    <div class="col-md-4">
-        <h2>Organize Your Money</h2>
-        <p>Money monager will help you organize your money all in one place.</p>
-    </div>
-    <div class="col-md-4">
-        <h2>Budget Simplification</h2>
-        <p>Money mananger helps you simplify your budgets.</p>
-        
-    </div>
+<h2>Transactions</h2>
+
+
+
+<table id="thistable" class="table">
+    <thead>
+        <tr>
+            <th>
+                Description
+            </th>
+            <th>
+                Category
+            </th>
+            <th>
+                Account
+            </th>
+            <th>
+                Ammount
+            </th>
+            <th>
+                Reconciled Ammount
+            </th>
+            <th>
+                Date
+            </th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Transactions)
+        {
+            <tr>
+                <td>
+                    @Html.ActionLink(item.Description, "Edit", "Transactions", new { accountId = item.AccountId, id = item.Id }, null)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Category.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AccountId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Amount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReconciledAmount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Date)
+                </td>
+            </tr>
+
+        }
+    </tbody>
+
+
+</table>
+
+
+<div class="col-md-12">
+    <canvas id="myChart" width="800" height="400"></canvas>
 </div>
+
+
+
+
+@section scripts
+{
+    <script>
+
+        $('#thistable').dataTable();
+
+    </script>
+
+
+
+
+    <script>
+
+
+
+        $.post("@Url.Action("GetChartData", "HouseholdAccounts")").then(function (response)
+        {
+            var ctx = $("#myChart").get(0).getContext("2d");
+
+
+            var data = {
+                labels: [],
+                datasets: [
+                    {
+                        label: "BudgetAmount",
+                        fillColor: "rgba(220,220,220,0.5)",
+                        strokeColor: "rgba(220,220,220,0.8)",
+                        highlightFill: "rgba(220,220,220,0.75)",
+                        highlightStroke: "rgba(220,220,220,1)",
+                        data: []
+                    },
+                    {
+                        label: "ActualAmount",
+                        fillColor: "rgba(151,187,205,0.5)",
+                        strokeColor: "rgba(151,187,205,0.8)",
+                        highlightFill: "rgba(151,187,205,0.75)",
+                        highlightStroke: "rgba(151,187,205,1)",
+                        data: []
+                    }
+                ]
+
+            };
+
+            for (i = 0; i < response.length; i++)
+            {
+                data.labels.push( response[i].Name );
+                data.datasets[0].data.push(response[i].BudgetAmount);
+                data.datasets[1].data.push(response[i].ActualAmount);
+            }
+
+            console.log(data)
+
+            Chart.defaults.global.scaleFontColor="black";
+            var myBarChart = new Chart(ctx).Bar(data, responsive = true);
+            myBarChart.update();
+
+        })
+
+
+
+
+    </script>
+
+}
+

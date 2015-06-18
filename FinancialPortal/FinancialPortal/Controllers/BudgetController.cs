@@ -40,8 +40,8 @@ namespace FinancialPortal.Controllers
         // GET: Budget/Create
         public ActionResult Create()
         {
+          
             ViewBag.CategoryId = new SelectList(db.Categories, "Id", "Name");
-            ViewBag.HouseholdId = new SelectList(db.Households, "Id", "Name");
             return View();
         }
 
@@ -54,6 +54,8 @@ namespace FinancialPortal.Controllers
         {
             if (ModelState.IsValid)
             {
+                int householdId = Int32.Parse(User.Identity.GetHouseholdId());
+                budgetItem.HouseholdId = householdId;
                 db.BudgetItems.Add(budgetItem);
                 await db.SaveChangesAsync();
                 return RedirectToAction("Index");

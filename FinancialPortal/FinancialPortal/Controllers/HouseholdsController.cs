@@ -13,12 +13,13 @@ using SendGrid;
 
 namespace FinancialPortal.Controllers
 {
+    [RequireHousehold]
     public class HouseholdsController : Controller
     {
+        
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Households
-        [RequireHousehold]
         public ActionResult Index()
         {
             var user = db.Users.Find(User.Identity.GetUserId());
@@ -27,7 +28,6 @@ namespace FinancialPortal.Controllers
         }
         
         // GET: Households/Details/5
-        [RequireHousehold]
         public ActionResult Details()
         {
             var id = Int32.Parse(User.Identity.GetHouseholdId());
@@ -45,6 +45,7 @@ namespace FinancialPortal.Controllers
         }
 
         // GET: Households/Create
+        [AllowAnonymous]
         public ActionResult Create()
         {
             return View();
@@ -78,7 +79,6 @@ namespace FinancialPortal.Controllers
         }
 
         // GET: Households/Edit/5
-        [RequireHousehold]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -98,7 +98,6 @@ namespace FinancialPortal.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [RequireHousehold]
         public ActionResult Edit([Bind(Include = "Id,Name")] Household household)
         {
             if (ModelState.IsValid)
@@ -111,7 +110,6 @@ namespace FinancialPortal.Controllers
         }
 
         // GET: Households/Delete/5
-        [RequireHousehold]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -182,19 +180,21 @@ namespace FinancialPortal.Controllers
             mailer.Send(new IdentityMessage() { 
                 Destination = ToEmail,
                 Subject = "You've been invited to join a household",
-                Body = "You have been invited to join a household." + code + "Use this code to join the household after registering."
+                Body = "You have been invited to join a household." + code + " Use this code to join the household after registering. http://millirenb-financeportal.azurewebsites.net/Account/Register"
             });
 
             return RedirectToAction("Index");
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public ActionResult Join()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<ActionResult> Join(string code)
         {
             var user = db.Users.Find(User.Identity.GetUserId());
@@ -210,6 +210,49 @@ namespace FinancialPortal.Controllers
 
             ModelState.AddModelError("Code", "Invalid Code");
             return View(new Invitation() {Code = code });
+        }
+
+
+        
+        public async Task<ActionResult> Leave()
+        {
+            var user = db.Users.Find(User.Identity.GetUserId());
+            user.HouseholdId = null;
+            db.SaveChanges();
+            await ControllerContext.HttpContext.RefreshAuthentication(user);
+            return RedirectToAction("Create", "Household");
+        }
+        
+  
+        [HttpPost]
+        public JsonResult GetChartData()
+        {
+            var hhId = int.Parse(User.Identity.GetHouseholdId());
+            var acctId = db.BudgetItems.FirstOrDefault(a => a.HouseholdId == hhId);
+
+            //DateTime startDate = DateTime.Today;
+            //DateTime endDate = DateTime.Today.AddDays(-30);
+
+            var house = db.Households.Find(hhId);
+
+
+
+            var endPeriod = System.DateTime.Now.AddDays(31);
+            var data =
+                (
+                    from c in house.Categories
+                    select new
+                    {
+                        Name = c.Name,
+                        ActualAmount = (from t in c.Transactions
+                                        where t.Date <= endPeriod
+                                        select t.AbsAmount).DefaultIfEmpty().Sum(),
+                        //ActualAmount = c.Transactions.Where(t=> t.Date >= startDate && t.Date <= endDate).Select(t=> t.Amount).DefaultIfEmpty().Sum(),
+                        BudgetAmount = c.BudgetItem.Select(t => t.Amount).DefaultIfEmpty().Sum()
+                    }
+                );
+
+            return Json(data);
         }
 
     }

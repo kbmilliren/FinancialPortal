@@ -4,7 +4,7 @@
     ViewBag.Title = "Details";
 }
 
-<h2>Household</h2>
+<h2>@Model.Name</h2>
 
 
 
@@ -15,13 +15,23 @@
         @item.Email
     }
 </div>
+<div>
+    <form method="post" action="@Url.Action("SendInvitation", "Households")">
+        <div>
+            <p>Invite others to household</p>
+            <input name="ToEmail" type="email" placeholder="user@mydomain.com" /> <input type="submit" onclick="SendInvitation" value="Send Invitation">
+        </div>
+    </form>
+</div>
+<div>
+    <form method="post" action="@Url.Action("Leave", "Households")">
+        <div>
+            <p>Leave Household</p>
+            <input type="submit" onclick="Leave" value="Leave this Household">
+        </div>
+    </form>
+</div>
 
-<form method="post" action="@Url.Action("SendInvitation", "Households")">
-    <div>
-        <p>Invite others to household</p>
-        <input name="ToEmail" type="email" placeholder="user@mydomain.com" /> <input type="submit" onclick="SendInvitation" value="SendInvitation">
-    </div>
-</form>
 
 
 <p>

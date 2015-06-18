@@ -49,7 +49,7 @@ namespace FinancialPortal.Controllers
         }
 
         // GET: Transactions/Create
-        [Route("~/Accounts/{accountId}/Transactions/Create")]
+        [Route("~/Accounts/{accountId}/Transactions/Create", Name= "TransactionCreate")]
         public ActionResult Create(int accountId)
         {
             var account = db.Households.Find(Int32.Parse(User.Identity.GetHouseholdId())).Accounts.FirstOrDefault(a => a.Id == accountId);
@@ -79,11 +79,12 @@ namespace FinancialPortal.Controllers
                     return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
                 account.Balance += transaction.Amount;
+                account.ReconciledBalance += transaction.ReconciledAmount;
                 transaction.Date = DateTimeOffset.Now;
                 transaction.UpdatedByUser = db.Users.Find(User.Identity.ToString());
                
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", "HouseholdAccounts", new { Id = accountId });
             }
 
             ViewBag.CategoryId = new SelectList(db.Categories, "Id", "Name", transaction.CategoryId);
@@ -123,11 +124,18 @@ namespace FinancialPortal.Controllers
                 var account = db.HouseholdAccounts.Find(transaction.AccountId);
                     account.Balance = (from t in db.Transactions
                                        where t.AccountId == account.Id
-                                       select t.Amount).Sum();
+                                       select t.Amount).DefaultIfEmpty().Sum();
 
-                account.Balance = db.Transactions.Where(t => t.AccountId == account.Id).Select(b => b.Amount).Sum();
+                    account.ReconciledBalance = (from t in db.Transactions
+                                                 where t.AccountId == account.Id
+                                                 select t.ReconciledAmount).DefaultIfEmpty().Sum();
 
-                return RedirectToAction("Index");
+                    transaction.Date = DateTimeOffset.Now;
+                    db.SaveChanges();
+
+                
+                return RedirectToAction("Details", "HouseholdAccounts", new { Id = accountId });
+
             }
             ViewBag.CategoryId = new SelectList(db.Categories, "Id", "Name", transaction.CategoryId);
             return View(transaction);
@@ -151,12 +159,12 @@ namespace FinancialPortal.Controllers
         // POST: Transactions/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public ActionResult DeleteConfirmed(int id, int accountId)
         {
             Transaction transaction = db.Transactions.Find(id);
             db.Transactions.Remove(transaction);
             db.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("Details", "HouseholdAccounts", new { accountId = accountId });
         }
 
         protected override void Dispose(bool disposing)

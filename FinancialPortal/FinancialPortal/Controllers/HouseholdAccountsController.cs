@@ -28,6 +28,8 @@ namespace FinancialPortal.Controllers
         // GET: HouseholdAccounts/Details/5
         public ActionResult Details(int? id)
         {
+           
+
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -37,6 +39,9 @@ namespace FinancialPortal.Controllers
             {
                 return HttpNotFound();
             }
+
+          
+            
             return View(householdAccount);
         }
 
@@ -146,5 +151,35 @@ namespace FinancialPortal.Controllers
             base.Dispose(disposing);
         }
 
+        [HttpPost]
+        public JsonResult GetChartData()
+        {
+            var hhId = int.Parse(User.Identity.GetHouseholdId());
+            var acctId = db.BudgetItems.FirstOrDefault(a => a.HouseholdId == hhId);
+
+            //DateTime startDate = DateTime.Today;
+            //DateTime endDate = DateTime.Today.AddDays(-30);
+
+            var house = db.Households.Find(hhId);
+
+            
+
+            var endPeriod = System.DateTime.Now.AddDays(31);
+            var data =
+                (
+                    from c in house.Categories
+                    select new
+                    {
+                        Name = c.Name,
+                        ActualAmount = (from t in c.Transactions
+                                        where t.Date <= endPeriod
+                                        select t.AbsAmount).DefaultIfEmpty().Sum(),
+                        //ActualAmount = c.Transactions.Where(t=> t.Date >= startDate && t.Date <= endDate).Select(t=> t.Amount).DefaultIfEmpty().Sum(),
+                        BudgetAmount = c.BudgetItem.Select(t => t.Amount).DefaultIfEmpty().Sum()
+                    }
+                );
+
+            return Json(data);
+        }
     }
 }
